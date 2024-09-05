@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
@@ -8,8 +8,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\DeliveryApp.Core\DeliveryApp.Core.csproj"/>
-        <ProjectReference Include="..\Utils\Primitives\Primitives.csproj"/>
+        <ProjectReference Include="..\DeliveryApp.Core\DeliveryApp.Core.csproj" />
+        <ProjectReference Include="..\Utils\Primitives\Primitives.csproj" />
     </ItemGroup>
 
 </Project>
