@@ -44,8 +44,8 @@ namespace DeliveryApp.Core.SharedKernel
         /// <returns></returns>
         public static Result<Location, Error> Create(int x, int y)
         {
-            if (x < 1 || x > 10) return GeneralErrors.ValueIsRequired(nameof(x));
-            if (y < 1 || y > 10) return GeneralErrors.ValueIsRequired(nameof(y));
+            if (x < 1 || x > 10) return GeneralErrors.ValueIsInvalid(nameof(x));
+            if (y < 1 || y > 10) return GeneralErrors.ValueIsInvalid(nameof(y));
 
             return new Location(x, y);
         }
