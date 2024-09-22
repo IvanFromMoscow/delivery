@@ -23,4 +23,8 @@
         <ProjectReference Include="..\..\DeliveryApp.Core\DeliveryApp.Core.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Domain\Model\" />
+    </ItemGroup>
+
 </Project>
