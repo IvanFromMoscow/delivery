@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
@@ -8,6 +8,12 @@
 
         <LangVersion>default</LangVersion>
     </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Remove="Domain\Model\**" />
+      <EmbeddedResource Remove="Domain\Model\**" />
+      <None Remove="Domain\Model\**" />
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="FluentAssertions" Version="7.0.0-alpha.4" />
@@ -21,10 +27,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\DeliveryApp.Core\DeliveryApp.Core.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Domain\Model\" />
     </ItemGroup>
 
 </Project>
