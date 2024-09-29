@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DeliveryApp.Core.Domain.CourierAggregate;
+using DeliveryApp.Core.Domain.Model.CourierAggregate;
 using DeliveryApp.Core.Domain.Model.OrderAggregate;
 using DeliveryApp.Core.SharedKernel;
 using Primitives;
@@ -77,7 +78,8 @@ namespace DeliveryApp.Core.Domain.OrderAggregate
         public Result<object, Error> Assign(Courier courier)
         {
             if (courier == null) return GeneralErrors.ValueIsRequired(nameof(courier));
-
+            if (courier.Status == CourierStatus.Busy) return Errors.CanNotAssignOrderForBusyCourier(courier.Id);
+            
             Status = OrderStatus.Assigned;
             CourierId = courier.Id;
             return new object();
@@ -93,6 +95,11 @@ namespace DeliveryApp.Core.Domain.OrderAggregate
             {
                 return new Error($"{nameof(Order).ToLowerInvariant()}.complete.order.is.wrong",
                         $"Завершить можно только назначенный ранее заказ.");
+            }
+            public static Error CanNotAssignOrderForBusyCourier(Guid courierId)
+            {
+                return new Error($"{nameof(Order).ToLowerInvariant()}.can.not.assign.order.for.busy.courier",
+                        $"Нельзя назначить заказ курьеру c Id {courierId}, который находится в состоянии занят.");
             }
         }
     }

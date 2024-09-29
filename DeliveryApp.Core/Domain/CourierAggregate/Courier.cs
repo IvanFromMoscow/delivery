@@ -29,8 +29,9 @@ namespace DeliveryApp.Core.Domain.CourierAggregate
         /// <param name="name"></param>
         /// <param name="transport"></param>
         /// <param name="location"></param>
-        private Courier(string name, Transport transport, Location location)
+        private Courier(string name, Transport transport, Location location) : this()
         {
+            Id = Guid.NewGuid();
             Name = name;
             Transport = transport;
             Location = location;
@@ -99,67 +100,83 @@ namespace DeliveryApp.Core.Domain.CourierAggregate
             var x = this.Location.X;
             var y = this.Location.Y;
 
+            var remainderSteps = Transport.Speed;  
+
             if (distanceX > 0)
             {
-                if (distanceX >= Transport.Speed)
+                if (distanceX >= remainderSteps)
                 {
-                    x += Transport.Speed;
+                    x += remainderSteps;
+                    this.Location = Location.Create(x, this.Location.Y).Value;
+                    return new object();
                 }
-                else if (distanceX < Transport.Speed)
+                if (distanceX < remainderSteps)
                 {
                     x += distanceX;
+                    this.Location = Location.Create(x, this.Location.Y).Value;
+                    remainderSteps -= distanceX;
                 }
-                this.Location = Location.Create(x, this.Location.Y).Value;
-                if (this.Location == targetLocation) new object();
+                if (this.Location == targetLocation) return new object();
             }
-            if (distanceX < 0)
+            else if (distanceX < 0)
             {
-                if (Math.Abs(distanceX) >= Transport.Speed)
+                if (Math.Abs(distanceX) >= remainderSteps)
                 {
-                    x -= Transport.Speed;
+                    x -= remainderSteps;
+                    this.Location = Location.Create(x, this.Location.Y).Value;
+                    return new object();
                 }
-                else if (Math.Abs(distanceX) < Transport.Speed)
+                if (Math.Abs(distanceX) < remainderSteps)
                 {
-                    x -= distanceX;
+                    x -= Math.Abs(distanceX);
+                    this.Location = Location.Create(x, this.Location.Y).Value;
+                    remainderSteps -= Math.Abs(distanceX);
                 }
-                this.Location = Location.Create(x, this.Location.Y).Value;
-                if (this.Location == targetLocation) new object();
+                if (this.Location == targetLocation) return new object();
             }
+
             if (distanceY > 0)
             {
-                if (distanceY >= Transport.Speed)
+                if (distanceY >= remainderSteps)
                 {
-                    y += Transport.Speed;
+                    y += remainderSteps;
+                    this.Location = Location.Create(this.Location.X, y).Value;
+                    return new object();
                 }
-                else if (distanceY < Transport.Speed)
+                if (distanceY < remainderSteps)
                 {
                     y += distanceY;
+                    this.Location = Location.Create(this.Location.X, y).Value;
                 }
-                this.Location = Location.Create(this.Location.X, y).Value;
-                if (this.Location == targetLocation) new object();
+                if (this.Location == targetLocation) return new object();
             }
-            if (distanceY > 0)
+            else if (distanceY < 0)
             {
-                if (Math.Abs(distanceY) >= Transport.Speed)
+                if (Math.Abs(distanceY) >= remainderSteps)
                 {
-                    y -= Transport.Speed;
+                    y -= remainderSteps;
+                    this.Location = Location.Create(this.Location.X, y).Value;
+                    return new object();
                 }
-                else if (Math.Abs(distanceY) < Transport.Speed)
+                else if (Math.Abs(distanceY) < remainderSteps)
                 {
-                    y -= distanceY;
+                    y -= Math.Abs(distanceY);
+                    this.Location = Location.Create(this.Location.X, y).Value;
                 }
-                this.Location = Location.Create(this.Location.X, y).Value;
-                if (this.Location == targetLocation) new object();
+                if (this.Location == targetLocation) return new object();
             }
+            this.Location = Location.Create(x, y).Value;
             return new object();
         }
 
         /// <summary>
         /// Установить статус Free
         /// </summary>
-        public void SetFree()
+        public Result<object, Error> SetFree()
         {
+            if (Status == CourierStatus.Free) return Errors.StatusIsFree();
             Status = CourierStatus.Free;
+            return new object();
         }
 
         /// <summary>
@@ -168,6 +185,7 @@ namespace DeliveryApp.Core.Domain.CourierAggregate
         public Result<object,Error> SetBusy()
         {
             if (Status == CourierStatus.Busy) return Errors.StatusIsBusy();
+            
             Status = CourierStatus.Busy;
             return new object();
         }
@@ -183,10 +201,10 @@ namespace DeliveryApp.Core.Domain.CourierAggregate
                 return new Error($"{nameof(CourierStatus).ToLowerInvariant()}.status.is.busy",
                     $"Курьер занят, нельзя изменить статус на {nameof(CourierStatus.Busy)}");
             }
-            public static Error StatusIsNotFree()
+            public static Error StatusIsFree()
             {
-                return new Error($"{nameof(CourierStatus).ToLowerInvariant()}.status.is.not.free",
-                    $"Курьер занят, нельзя изменить статус на {nameof(CourierStatus.Busy)}");
+                return new Error($"{nameof(CourierStatus).ToLowerInvariant()}.status.is.free",
+                    $"Курьер уже свободен.");
             }
         }
     }
