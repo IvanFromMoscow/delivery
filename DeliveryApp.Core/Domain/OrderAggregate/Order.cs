@@ -62,12 +62,12 @@ namespace DeliveryApp.Core.Domain.OrderAggregate
         /// Завершить заказ
         /// </summary>
         /// <returns>Результат</returns>
-        public Result<object, Error> Complete()
+        public UnitResult<Error> Complete()
         {
             if (Status != OrderStatus.Assigned) return Errors.CompleteOrderIsWrong();
             
             Status = OrderStatus.Completed;
-            return new object();
+            return UnitResult.Success<Error>();
         }
 
         /// <summary>
@@ -75,14 +75,14 @@ namespace DeliveryApp.Core.Domain.OrderAggregate
         /// </summary>
         /// <param name="courier">Курьер</param>
         /// <returns>Результат</returns>
-        public Result<object, Error> Assign(Courier courier)
+        public UnitResult<Error> Assign(Courier courier)
         {
             if (courier == null) return GeneralErrors.ValueIsRequired(nameof(courier));
             if (courier.Status == CourierStatus.Busy) return Errors.CanNotAssignOrderForBusyCourier(courier.Id);
             
             Status = OrderStatus.Assigned;
             CourierId = courier.Id;
-            return new object();
+            return UnitResult.Success<Error>();
         }
 
         /// <summary>

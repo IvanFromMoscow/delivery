@@ -90,7 +90,7 @@ namespace DeliveryApp.Core.Domain.CourierAggregate
         /// </summary>
         /// <param name="targetLocation">Местоположение заказа</param>
         /// <returns>Результат</returns>
-        public Result<object, Error> Move(Location targetLocation)
+        public UnitResult<Error> Move(Location targetLocation)
         {
             if (targetLocation is null) return GeneralErrors.ValueIsRequired(nameof(targetLocation));
 
@@ -108,7 +108,7 @@ namespace DeliveryApp.Core.Domain.CourierAggregate
                 {
                     x += remainderSteps;
                     this.Location = Location.Create(x, this.Location.Y).Value;
-                    return new object();
+                    return UnitResult.Success<Error>();
                 }
                 if (distanceX < remainderSteps)
                 {
@@ -116,7 +116,7 @@ namespace DeliveryApp.Core.Domain.CourierAggregate
                     this.Location = Location.Create(x, this.Location.Y).Value;
                     remainderSteps -= distanceX;
                 }
-                if (this.Location == targetLocation) return new object();
+                if (this.Location == targetLocation) return UnitResult.Success<Error>();
             }
             else if (distanceX < 0)
             {
@@ -124,7 +124,7 @@ namespace DeliveryApp.Core.Domain.CourierAggregate
                 {
                     x -= remainderSteps;
                     this.Location = Location.Create(x, this.Location.Y).Value;
-                    return new object();
+                    return UnitResult.Success<Error>();
                 }
                 if (Math.Abs(distanceX) < remainderSteps)
                 {
@@ -132,7 +132,7 @@ namespace DeliveryApp.Core.Domain.CourierAggregate
                     this.Location = Location.Create(x, this.Location.Y).Value;
                     remainderSteps -= Math.Abs(distanceX);
                 }
-                if (this.Location == targetLocation) return new object();
+                if (this.Location == targetLocation) return UnitResult.Success<Error>();
             }
 
             if (distanceY > 0)
@@ -141,14 +141,14 @@ namespace DeliveryApp.Core.Domain.CourierAggregate
                 {
                     y += remainderSteps;
                     this.Location = Location.Create(this.Location.X, y).Value;
-                    return new object();
+                    return UnitResult.Success<Error>();
                 }
                 if (distanceY < remainderSteps)
                 {
                     y += distanceY;
                     this.Location = Location.Create(this.Location.X, y).Value;
                 }
-                if (this.Location == targetLocation) return new object();
+                if (this.Location == targetLocation) return UnitResult.Success<Error>();
             }
             else if (distanceY < 0)
             {
@@ -156,38 +156,38 @@ namespace DeliveryApp.Core.Domain.CourierAggregate
                 {
                     y -= remainderSteps;
                     this.Location = Location.Create(this.Location.X, y).Value;
-                    return new object();
+                    return UnitResult.Success<Error>();
                 }
                 else if (Math.Abs(distanceY) < remainderSteps)
                 {
                     y -= Math.Abs(distanceY);
                     this.Location = Location.Create(this.Location.X, y).Value;
                 }
-                if (this.Location == targetLocation) return new object();
+                if (this.Location == targetLocation) return UnitResult.Success<Error>();
             }
             this.Location = Location.Create(x, y).Value;
-            return new object();
+            return UnitResult.Success<Error>();
         }
 
         /// <summary>
         /// Установить статус Free
         /// </summary>
-        public Result<object, Error> SetFree()
+        public UnitResult<Error> SetFree()
         {
             if (Status == CourierStatus.Free) return Errors.StatusIsFree();
             Status = CourierStatus.Free;
-            return new object();
+            return UnitResult.Success<Error>();
         }
 
         /// <summary>
         /// Установить статус Busy
         /// </summary>
-        public Result<object,Error> SetBusy()
+        public UnitResult<Error> SetBusy()
         {
             if (Status == CourierStatus.Busy) return Errors.StatusIsBusy();
             
             Status = CourierStatus.Busy;
-            return new object();
+            return UnitResult.Success<Error>();
         }
         
         /// <summary>
