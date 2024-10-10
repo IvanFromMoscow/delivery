@@ -46,11 +46,8 @@ namespace DeliveryApp.UnitTests.Domain.CourierAggregate
             result.Value.Speed.Should().Be(speed);
         }
 
-        [Theory]
-        [InlineData(1, "pedestrian", 1)]
-        [InlineData(2, "bicycle", 2)]
-        [InlineData(3, "car", 3)]
-        public void CanNotBeFoundByName(int id, string name, int speed)
+        [Fact]
+        public void CanNotBeFoundByName()
         {
             //Arrange
             string incorrectName = "test";
@@ -77,11 +74,8 @@ namespace DeliveryApp.UnitTests.Domain.CourierAggregate
             result.Value.Name.Should().Be(name);
             result.Value.Speed.Should().Be(speed);
         }
-        [Theory]
-        [InlineData(1, "pedestrian", 1)]
-        [InlineData(2, "bicycle", 2)]
-        [InlineData(3, "car", 3)]
-        public void CanNotBeFoundById(int id, string name, int speed)
+        [Fact]
+        public void CanNotBeFoundById()
         {
             //Arrange
             int incorrectId = -1;
