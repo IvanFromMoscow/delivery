@@ -16,7 +16,6 @@ namespace DeliveryApp.Infrastructure.Adapters.Postgres.Repositories
         }
         public async Task AddAsync(Courier courier)
         {
-            if (courier.Location != null) dbContext.Attach(courier.Location);
             if (courier.Status != null) dbContext.Attach(courier.Status);
             if (courier.Transport != null) dbContext.Attach(courier.Transport);
 
@@ -47,7 +46,6 @@ namespace DeliveryApp.Infrastructure.Adapters.Postgres.Repositories
 
         public void Update(Courier courier)
         {
-            if (courier.Location != null) dbContext.Attach(courier.Location);
             if (courier.Status != null) dbContext.Attach(courier.Status);
             if (courier.Transport != null) dbContext.Attach(courier.Transport);
 

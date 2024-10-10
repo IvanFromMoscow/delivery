@@ -125,7 +125,7 @@ namespace DeliveryApp.IntegrationTests.Adapters.Postgres.Repositories
 
             //Assert
             couriers.Should().NotBeEmpty();
-            couriers.Count().Should().Be(2);
+            couriers.Count().Should().Be(1);
             couriers.Single().Should().BeEquivalentTo(courier);
         }
 

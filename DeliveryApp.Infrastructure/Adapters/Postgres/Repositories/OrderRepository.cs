@@ -20,7 +20,6 @@ namespace DeliveryApp.Infrastructure.Adapters.Postgres.Repositories
         }
         public async Task AddAsync(Order order)
         {
-            if (order.Location != null) dbContext.Attach(order.Location);
             if (order.Status != null) dbContext.Attach(order.Status);
 
             await dbContext.Orders.AddAsync(order);
@@ -28,7 +27,6 @@ namespace DeliveryApp.Infrastructure.Adapters.Postgres.Repositories
 
         public void Update(Order order)
         {
-            if (order.Location != null) dbContext.Attach(order.Location);
             if (order.Status != null) dbContext.Attach(order.Status);
 
             dbContext.Orders.Update(order);

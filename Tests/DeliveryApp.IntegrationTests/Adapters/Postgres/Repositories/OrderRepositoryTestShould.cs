@@ -125,7 +125,8 @@ namespace DeliveryApp.IntegrationTests.Adapters.Postgres.Repositories
             //Assert
             orders.Should().NotBeEmpty();
             orders.Count().Should().Be(2);
-            orders.Single().Should().BeEquivalentTo(order);
+            Assert.Contains(orders, o => o.Id.Equals(order.Id));
+            Assert.Contains(orders, o => o.Id.Equals(orderTwo.Id));
         }
 
         [Fact]
@@ -150,7 +151,8 @@ namespace DeliveryApp.IntegrationTests.Adapters.Postgres.Repositories
             //Assert
             orders.Should().NotBeEmpty();
             orders.Count().Should().Be(2);
-            orders.Single().Should().BeEquivalentTo(order);
+            Assert.Contains(orders, o => o.Id.Equals(order.Id));
+            Assert.Contains(orders, o => o.Id.Equals(orderTwo.Id));
         }
     }
 }
