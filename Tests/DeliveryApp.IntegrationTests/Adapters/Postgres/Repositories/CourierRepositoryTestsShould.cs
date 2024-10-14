@@ -52,7 +52,7 @@ namespace DeliveryApp.IntegrationTests.Adapters.Postgres.Repositories
         }
 
         [Fact]
-        public async void CanAddCourier()
+        public async Task CanAddCourier()
         {
             //Arrange
 
@@ -121,7 +121,7 @@ namespace DeliveryApp.IntegrationTests.Adapters.Postgres.Repositories
             await unitOfWork.SaveEntitiesAsync();
 
             //Act
-            var couriers = courierRepository.GetAllFree()?.ToList();
+            var couriers = await courierRepository.GetAllFreeAsync();
 
             //Assert
             couriers.Should().NotBeEmpty();

@@ -54,7 +54,7 @@ namespace DeliveryApp.IntegrationTests.Adapters.Postgres.Repositories
         }
 
         [Fact]
-        public async void CanAddOrder()
+        public async Task CanAddOrder()
         {
             //Arrange
 
@@ -120,7 +120,7 @@ namespace DeliveryApp.IntegrationTests.Adapters.Postgres.Repositories
             await unitOfWork.SaveEntitiesAsync();
 
             //Act
-            var orders = orderRepository.GetAllCreated()?.ToList();
+            var orders = await orderRepository.GetAllCreatedAsync();
 
             //Assert
             orders.Should().NotBeEmpty();
@@ -146,7 +146,7 @@ namespace DeliveryApp.IntegrationTests.Adapters.Postgres.Repositories
             await unitOfWork.SaveEntitiesAsync();
 
             //Act
-            var orders = orderRepository.GetAllAssigned()?.ToList();
+            var orders = await orderRepository.GetAllAssignedAsync();
 
             //Assert
             orders.Should().NotBeEmpty();
