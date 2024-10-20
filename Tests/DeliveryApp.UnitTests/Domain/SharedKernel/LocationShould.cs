@@ -8,9 +8,9 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace DeliveryApp.UnitTests.Domain.Model.SharedKernel
+namespace DeliveryApp.UnitTests.Domain.SharedKernel
 {
-    public  class LocationShould
+    public class LocationShould
     {
         [Fact]
         public void BeCorrectWhenParamsIsCorrectOnCreated()
@@ -18,18 +18,18 @@ namespace DeliveryApp.UnitTests.Domain.Model.SharedKernel
             //Arrange
 
             //Act
-            var location = Location.Create(1,1);
+            var location = Location.Create(1, 1);
 
             //Assert
             location.IsSuccess.Should().BeTrue();
             location.Value.X.Should().Be(1);
             location.Value.Y.Should().Be(1);
         }
-        
+
         [Theory]
-        [InlineData(0,5)]
-        [InlineData(-3,10)]
-        [InlineData(5,0)]
+        [InlineData(0, 5)]
+        [InlineData(-3, 10)]
+        [InlineData(5, 0)]
         [InlineData(5, -2)]
         [InlineData(2, 11)]
         [InlineData(11, 2)]
@@ -53,8 +53,8 @@ namespace DeliveryApp.UnitTests.Domain.Model.SharedKernel
         public void BeEqualWhenAllPropertiesIsEqual()
         {
             //Arrange
-            var first = Location.Create(5,5).Value;
-            var second = Location.Create(5,5).Value;
+            var first = Location.Create(5, 5).Value;
+            var second = Location.Create(5, 5).Value;
 
             //Act
             var result = first == second;
@@ -120,7 +120,7 @@ namespace DeliveryApp.UnitTests.Domain.Model.SharedKernel
             //Arrange
 
             //Act
-                var createdLocation = Location.CreateRandom();
+            var createdLocation = Location.CreateRandom();
 
             //Assert
             Assert.NotNull(createdLocation);
