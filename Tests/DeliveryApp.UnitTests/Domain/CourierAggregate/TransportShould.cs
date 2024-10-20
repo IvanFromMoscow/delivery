@@ -1,11 +1,7 @@
 ﻿using DeliveryApp.Core.Domain.CourierAggregate;
-using DeliveryApp.Core.SharedKernel;
 using FluentAssertions;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace DeliveryApp.UnitTests.Domain.CourierAggregate
@@ -26,7 +22,7 @@ namespace DeliveryApp.UnitTests.Domain.CourierAggregate
             //Arrange
 
             //Act
-            
+
             //Assert
             transport.Name.Should().Be(name);
             transport.Id.Should().Be(id);
@@ -103,12 +99,12 @@ namespace DeliveryApp.UnitTests.Domain.CourierAggregate
             var first = Transport.Bicycle;
             var second = Transport.Bicycle;
             bool result = false;
-            
+
             //Act
             result = first.Id == second.Id;
             //Assert
             result.Should().BeTrue();
-            
+
             //Act
             result = first.Equals(second);
             //Assert
@@ -144,6 +140,27 @@ namespace DeliveryApp.UnitTests.Domain.CourierAggregate
             transports.Should().NotBeNull();
             transports.Should().AllBeOfType<Transport>();
             transports.Should().NotBeEmpty();
+            
+            Assert.Equal(3, transports.Count());
+
+            Assert.Collection<Transport>(transports, t =>
+            {
+                Assert.Equal(1, t.Id);
+                Assert.Equal(nameof(t.Pedestrian).ToLowerInvariant(), t.Name);
+                Assert.Equal(1, t.Speed);
+            },
+            t =>
+            {
+                Assert.Equal(2, t.Id);
+                Assert.Equal(nameof(t.Bicycle).ToLowerInvariant(), t.Name);
+                Assert.Equal(2, t.Speed);
+            },
+            t =>
+            {
+                Assert.Equal(3, t.Id);
+                Assert.Equal(nameof(t.Car).ToLowerInvariant(), t.Name);
+                Assert.Equal(3, t.Speed);
+            });
         }
     }
 }
