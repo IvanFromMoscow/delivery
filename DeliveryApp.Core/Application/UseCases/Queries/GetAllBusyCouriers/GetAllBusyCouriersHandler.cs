@@ -21,7 +21,7 @@ namespace DeliveryApp.Core.Application.UseCases.Queries.GetAllBusyCouriers
             using var connection = new NpgsqlConnection(connectionString);
             connection.Open();
 
-            var result = await connection.QueryAsync<dynamic>(
+            var result = await connection.QueryAsync<Courier>(
                 @"SELECT c.id, c.name, c.location_x, c.location_y, c.transport_id
                   FROM public.couriers c
                   WHERE c.status_id = @statusId"
@@ -41,7 +41,7 @@ namespace DeliveryApp.Core.Application.UseCases.Queries.GetAllBusyCouriers
             : throw new ArgumentNullException(nameof(connectionString));
 
         }
-        private List<Courier> MapCouriers(IEnumerable<dynamic> couriersFromDb)
+        private List<Courier> MapCouriers(IEnumerable<Courier> couriersFromDb)
         {
             List<Courier> couriers = new();
 
@@ -49,14 +49,14 @@ namespace DeliveryApp.Core.Application.UseCases.Queries.GetAllBusyCouriers
             {
                 var newCourier = new GetAllBusyCouriers.Courier()
                 {
-                    Id = courier.id,
+                    Id = courier.Id,
                     Location = new GetAllBusyCouriers.Location()
                     {
-                        X = courier.location_x,
-                        Y = courier.location_y
+                        X = courier.Location.X,
+                        Y = courier.Location.Y
                     },
-                    Name = courier.name,
-                    TransportId = courier.transport_id
+                    Name = courier.Name,
+                    TransportId = courier.TransportId
                 };
                 couriers.Add(newCourier);
             }

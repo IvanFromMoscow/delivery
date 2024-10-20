@@ -32,23 +32,23 @@ namespace DeliveryApp.Infrastructure.Adapters.Postgres.Repositories
             dbContext.Orders.Update(order);
         }
 
-        public async Task<IEnumerable<Order>> GetAllAssignedAsync()
+        public async Task<Order[]> GetAllAssignedAsync()
         {
             return await dbContext
                 .Orders
                 .Include(o => o.Location)
                 .Include(o => o.Status)
-                .Where(o => o.Status == OrderStatus.Assigned).ToListAsync();
+                .Where(o => o.Status == OrderStatus.Assigned).ToArrayAsync();
 
         }
 
-        public async Task<IEnumerable<Order>> GetAllCreatedAsync()
+        public async Task<Order[]> GetAllCreatedAsync()
         {
             return await dbContext
                 .Orders
                 .Include(o => o.Location)
                 .Include(o => o.Status)
-                .Where(o => o.Status == OrderStatus.Created).ToListAsync();
+                .Where(o => o.Status == OrderStatus.Created).ToArrayAsync();
            
         }
 

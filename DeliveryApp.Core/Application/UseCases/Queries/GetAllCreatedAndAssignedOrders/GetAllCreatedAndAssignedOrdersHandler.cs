@@ -28,7 +28,7 @@ namespace DeliveryApp.Core.Application.UseCases.Queries.GetAllCreatedAndAssigned
             using var connection = new NpgsqlConnection(connectionString);
             connection.Open();
 
-            var result = await connection.QueryAsync<dynamic>(
+            var result = await connection.QueryAsync<Order>(
                 @"SELECT o.id, o.location_x, o.location_y 
                   FROM public.orders o
                   WHERE o.status_id IN (@statusCreated, @statusAssigned)"
@@ -40,7 +40,7 @@ namespace DeliveryApp.Core.Application.UseCases.Queries.GetAllCreatedAndAssigned
             return new GetCreatedAndAssignedOrdersResponse(MapOrders(result));
         }
 
-        private List<Order> MapOrders(IEnumerable<dynamic> ordersFromDb)
+        private List<Order> MapOrders(IEnumerable<Order> ordersFromDb)
         {
             List<Order> orders = new();
 
@@ -48,11 +48,11 @@ namespace DeliveryApp.Core.Application.UseCases.Queries.GetAllCreatedAndAssigned
             {
                 var newOrder = new GetAllCreatedAndAssignedOrders.Order()
                 {
-                    Id = order.id,
+                    Id = order.Id,
                     Location = new GetAllCreatedAndAssignedOrders.Location()
                     {
-                        X = order.location_x,
-                        Y = order.location_y
+                        X = order.Location.X,
+                        Y = order.Location.Y
                     }
                 };
                 orders.Add(newOrder);
