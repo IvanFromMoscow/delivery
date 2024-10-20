@@ -1,4 +1,5 @@
-﻿using DeliveryApp.Core.Application.UseCases.Commands.CreateOrder;
+﻿using Dapper;
+using DeliveryApp.Core.Application.UseCases.Commands.CreateOrder;
 using DeliveryApp.Core.Application.UseCases.Commands.MoveCouriers;
 using DeliveryApp.Core.Domain.CourierAggregate;
 using DeliveryApp.Core.Domain.OrderAggregate;
@@ -43,7 +44,7 @@ namespace DeliveryApp.UnitTests.Application
            
 
             orderRepositoryMock.GetAllAssignedAsync()
-                .Returns(Task.FromResult(orders.AsEnumerable()));
+                .Returns(Task.FromResult<Order[]>(orders.ToArray()));
             orderRepositoryMock.Update(Arg.Any<Order>());
 
             courierRepositoryMock.GetByIdAsync(Arg.Any<Guid>())
@@ -72,7 +73,7 @@ namespace DeliveryApp.UnitTests.Application
             {
             };
             orderRepositoryMock.GetAllAssignedAsync()
-                .Returns(Task.FromResult(Enumerable.Empty<Order>()));
+                .Returns(Task.FromResult<Order[]>(new Order[] {}));
 
             courierRepositoryMock.GetByIdAsync(Arg.Any<Guid>())
                .Returns(Task.FromResult(TestCourier));
