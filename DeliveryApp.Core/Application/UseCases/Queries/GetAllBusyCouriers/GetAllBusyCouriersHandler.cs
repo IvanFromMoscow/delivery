@@ -20,12 +20,18 @@ namespace DeliveryApp.Core.Application.UseCases.Queries.GetAllBusyCouriers
 
             using var connection = new NpgsqlConnection(connectionString);
             connection.Open();
-
-            var result = await connection.QueryAsync<Courier>(
-                @"SELECT c.id, c.name, c.location_x, c.location_y, c.transport_id
+            var sql = $@"SELECT c.id, c.name, c.transport_id, c.location_x as {nameof(Courier.Location.X)}, c.location_y as {nameof(Courier.Location.Y)}
                   FROM public.couriers c
-                  WHERE c.status_id = @statusId"
-                , new { statusId = CourierStatus.Busy.Id });
+                  WHERE c.status_id = @statusId";
+            var result = await connection.QueryAsync<Courier, Location, Courier>(
+                sql,
+                (courier, location) =>
+                {
+                    courier.Location = location;
+                    return courier;
+                }
+                , new { statusId = CourierStatus.Busy.Id }
+                , splitOn: "X");
 
             if (result.AsList().Count == 0)
                 return null;

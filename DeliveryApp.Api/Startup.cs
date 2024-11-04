@@ -1,8 +1,27 @@
+using Api.Filters;
+using Api.Formatters;
+using Api.OpenApi;
+using CSharpFunctionalExtensions;
+using DeliveryApp.Api.Adapters.BackgroundJobs;
+using DeliveryApp.Core.Application.UseCases.Commands.AssignOrderToCourier;
+using DeliveryApp.Core.Application.UseCases.Commands.CreateOrder;
+using DeliveryApp.Core.Application.UseCases.Commands.MoveCouriers;
+using DeliveryApp.Core.Application.UseCases.Queries.GetAllBusyCouriers;
+using DeliveryApp.Core.Application.UseCases.Queries.GetAllCreatedAndAssignedOrders;
+using DeliveryApp.Core.Domain.Services;
 using DeliveryApp.Core.Ports;
+using DeliveryApp.Infrastructure.Adapters.gRPC;
 using DeliveryApp.Infrastructure.Adapters.Postgres;
 using DeliveryApp.Infrastructure.Adapters.Postgres.Repositories;
+using MediatR;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Serialization;
 using Primitives;
+using Quartz;
+using System.Reflection;
 
 namespace DeliveryApp.Api;
 
@@ -43,6 +62,9 @@ public class Startup
         var geoServiceGrpcHost = Configuration["GEO_SERVICE_GRPC_HOST"];
         var messageBrokerHost = Configuration["MESSAGE_BROKER_HOST"];
 
+        // Domain service
+        services.AddTransient<IDispatchService, DispatchService>();
+
         // БД, ORM 
         services.AddDbContext<ApplicationDbContext>(options =>
         {
@@ -52,6 +74,7 @@ public class Startup
         }
         );
 
+
         // UnitOfWork
         services.AddTransient<IUnitOfWork, UnitOfWork>();
 
@@ -59,6 +82,79 @@ public class Startup
         services.AddTransient<ICourierRepository, CourierRepository>();
         services.AddTransient<IOrderRepository, OrderRepository>();
 
+        // Mediator
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+
+        // Commands
+        services.AddTransient<IRequestHandler<CreateOrderCommand, Result<bool, Error>>, CreateOrderHandler>();
+        services.AddTransient<IRequestHandler<MoveCouriersCommand, bool>, MoveCouriersHandler>();
+        services.AddTransient<IRequestHandler<AssignOrderToCourierCommand, Result<bool, Error>>, AssignOrderToCourierHandler>();
+
+        // Queries
+        services.AddTransient<IRequestHandler<GetAllCreatedAndAssignedOrdersQuery, GetCreatedAndAssignedOrdersResponse>>(
+            _ => new GetAllCreatedAndAssignedOrdersHandler(connectionString));
+        services.AddTransient<IRequestHandler<GetAllBusyCouriersQuery, GetCouriersResponse>>(
+            _ => new GetAllBusyCouriersHandler(connectionString));
+
+        // HTTP Handlers
+        services.AddControllers(options =>
+        {
+            options.InputFormatters.Insert(0, new InputFormatterStream());
+        })
+            .AddNewtonsoftJson(options =>
+            {
+                options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                options.SerializerSettings.Converters.Add(new StringEnumConverter
+                {
+                    NamingStrategy = new CamelCaseNamingStrategy()
+                });
+            });
+
+        // Swagger
+        services.AddSwaggerGen(options =>
+        {
+            options.SwaggerDoc("1.0.0", new OpenApiInfo
+            {
+                Title = "Delivery Service",
+                Description = "Отвечает за учет курьеров, деспетчеризацию доставкуов, доставку",
+                Contact = new OpenApiContact
+                {
+                    Name = "Kirill Vetchinkin",
+                    Url = new Uri("https://microarch.ru"),
+                    Email = "info@microarch.ru"
+                }
+            });
+            options.CustomSchemaIds(type => type.FriendlyId(true));
+            options.IncludeXmlComments($"{AppContext.BaseDirectory}{Path.DirectorySeparatorChar}{Assembly.GetEntryAssembly().GetName().Name}.xml");
+            options.DocumentFilter<BasePathFilter>("");
+            options.OperationFilter<GeneratePathParamsValidationFilter>();
+        });
+        services.AddSwaggerGenNewtonsoftSupport();
+        // gRPC
+       services.AddTransient<IGeoService, GeoService>();
+
+        // CRON Jobs
+        services.AddQuartz(configure =>
+        {
+            var assignOrdersJobKey = new JobKey(nameof(AssignOrdersJob));
+            var moveCouriersJobKey = new JobKey(nameof(MoveCouriersJob));
+            // var processOutboxMessagesJobKey = new JobKey(nameof(ProcessOutboxMessagesJob));
+            configure
+                .AddJob<AssignOrdersJob>(assignOrdersJobKey)
+                .AddTrigger(
+                    trigger => trigger.ForJob(assignOrdersJobKey)
+                        .WithSimpleSchedule(
+                            schedule => schedule.WithIntervalInSeconds(1)
+                                .RepeatForever()))
+                .AddJob<MoveCouriersJob>(moveCouriersJobKey)
+                .AddTrigger(
+                    trigger => trigger.ForJob(moveCouriersJobKey)
+                        .WithSimpleSchedule(
+                            schedule => schedule.WithIntervalInSeconds(2)
+                                .RepeatForever()));
+            configure.UseMicrosoftDependencyInjectionJobFactory();
+        });
+        services.AddQuartzHostedService();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -70,5 +166,23 @@ public class Startup
 
         app.UseHealthChecks("/health");
         app.UseRouting();
+        app.UseDefaultFiles();
+        app.UseStaticFiles();
+        app.UseSwagger(c =>
+        {
+            c.RouteTemplate = "openapi/{documentName}/openapi.json";
+        })
+            .UseSwaggerUI(options =>
+            {
+                options.RoutePrefix = "openapi";
+                options.SwaggerEndpoint("/openapi/1.0.0/openapi.json", "Swagger Delivery Service");
+                options.RoutePrefix = string.Empty;
+                options.SwaggerEndpoint("/openapi-original.json", "Swagger Delivery Service");
+            });
+
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapControllers();
+        });
     }
 }

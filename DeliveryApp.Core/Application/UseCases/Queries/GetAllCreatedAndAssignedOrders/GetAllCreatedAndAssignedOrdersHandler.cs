@@ -1,14 +1,7 @@
 ﻿using Dapper;
-using DeliveryApp.Core.Application.UseCases.Queries.GetAllBusyCouriers;
-using DeliveryApp.Core.Domain.Model.CourierAggregate;
 using DeliveryApp.Core.Domain.Model.OrderAggregate;
 using MediatR;
 using Npgsql;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DeliveryApp.Core.Application.UseCases.Queries.GetAllCreatedAndAssignedOrders
 {
@@ -27,12 +20,17 @@ namespace DeliveryApp.Core.Application.UseCases.Queries.GetAllCreatedAndAssigned
         {
             using var connection = new NpgsqlConnection(connectionString);
             connection.Open();
-
-            var result = await connection.QueryAsync<Order>(
-                @"SELECT o.id, o.location_x, o.location_y 
+            var sql = $@"SELECT o.id, o.location_x as {nameof(Order.Location.X)} , o.location_y {nameof(Order.Location.Y)}
                   FROM public.orders o
-                  WHERE o.status_id IN (@statusCreated, @statusAssigned)"
-                , new { statusCreated = OrderStatus.Created.Id, statusAssigned = OrderStatus.Assigned.Id });
+                  WHERE o.status_id IN (@statusCreated, @statusAssigned)";
+
+            var result = await connection.QueryAsync<Order,Location,Order>(
+                sql, (order, location) =>
+                {
+                    order.Location = location;
+                    return order;
+                }, new { statusCreated = OrderStatus.Created.Id, statusAssigned = OrderStatus.Assigned.Id }
+                ,splitOn: "X");
 
             if (result.AsList().Count == 0)
                 return null;
