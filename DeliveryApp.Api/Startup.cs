@@ -179,7 +179,7 @@ public class Startup
                 options.RoutePrefix = string.Empty;
                 options.SwaggerEndpoint("/openapi-original.json", "Swagger Delivery Service");
             });
-
+        app.UseCors();
         app.UseEndpoints(endpoints =>
         {
             endpoints.MapControllers();

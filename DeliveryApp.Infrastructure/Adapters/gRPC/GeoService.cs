@@ -12,7 +12,7 @@ namespace DeliveryApp.Infrastructure.Adapters.gRPC
     {
         public Task<Location> GetGeolocationAsync(string street, CancellationToken cancellationToken)
         {
-            return  Task.Run<Location>(() => Location.Create(3, 3).Value);
+            return  Task.Run<Location>(() => Location.CreateRandom());
         }
     }
 }
