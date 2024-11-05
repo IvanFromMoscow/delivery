@@ -1,15 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
-using DeliveryApp.Core.Domain.Model.CourierAggregate;
 using DeliveryApp.Core.Domain.OrderAggregate;
 using DeliveryApp.Core.Ports;
 using MediatR;
 using Primitives;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DeliveryApp.Core.Application.UseCases.Commands.CreateOrder
 {

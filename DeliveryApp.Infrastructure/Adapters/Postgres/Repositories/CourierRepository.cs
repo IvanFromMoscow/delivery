@@ -22,14 +22,14 @@ namespace DeliveryApp.Infrastructure.Adapters.Postgres.Repositories
             await dbContext.Couriers.AddAsync (courier);
         }
 
-        public async Task<IEnumerable<Courier>> GetAllFreeAsync()
+        public async Task<Courier[]> GetAllFreeAsync()
         {
             var couriers = await dbContext
                  .Couriers
                  .Include(c => c.Location)
                  .Include(c => c.Status)
                  .Include(c => c.Transport)
-                 .Where(o => o.Status == CourierStatus.Free).ToListAsync();
+                 .Where(o => o.Status == CourierStatus.Free).ToArrayAsync();
             return couriers;
         }
 
