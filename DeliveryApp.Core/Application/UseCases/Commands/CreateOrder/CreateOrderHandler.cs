@@ -32,7 +32,8 @@ namespace DeliveryApp.Core.Application.UseCases.Commands.CreateOrder
 
             // create order
             var location = await geoService.GetGeolocationAsync(command.Street, cancellationToken);
-            var newOrder = Order.Create(command.BasketId, location);
+            if (location.IsFailure) return GeneralErrors.ValueIsInvalid(location.Error.Message);
+            var newOrder = Order.Create(command.BasketId, location.Value);
             if (newOrder.IsFailure)
             {
                 return false;

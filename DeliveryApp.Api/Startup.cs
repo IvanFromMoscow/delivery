@@ -10,7 +10,7 @@ using DeliveryApp.Core.Application.UseCases.Queries.GetAllBusyCouriers;
 using DeliveryApp.Core.Application.UseCases.Queries.GetAllCreatedAndAssignedOrders;
 using DeliveryApp.Core.Domain.Services;
 using DeliveryApp.Core.Ports;
-using DeliveryApp.Infrastructure.Adapters.gRPC;
+using DeliveryApp.Infrastructure.Adapters.Grpc.GeoService;
 using DeliveryApp.Infrastructure.Adapters.Postgres;
 using DeliveryApp.Infrastructure.Adapters.Postgres.Repositories;
 using MediatR;
@@ -57,6 +57,7 @@ public class Startup
         });
 
         // Configuration
+        
         services.Configure<Settings>(options => Configuration.Bind(options));
         var connectionString = Configuration["CONNECTION_STRING"];
         var geoServiceGrpcHost = Configuration["GEO_SERVICE_GRPC_HOST"];

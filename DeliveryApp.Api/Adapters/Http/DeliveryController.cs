@@ -21,7 +21,7 @@ namespace DeliveryApp.Api.Adapters.Http
         public async override Task<IActionResult> CreateOrder()
         {
             var orderId = Guid.NewGuid();
-            var street = "Несуществующая";
+            var street = "Тестировочная";
             var createOrderCommand =
                 new CreateOrderCommand(orderId, street);
             var response = await _mediator.Send(createOrderCommand);
