@@ -1,5 +1,4 @@
-﻿namespace DeliveryApp.Api;
-
+﻿using DeliveryApp.Infrastructure;
 public class Settings
 {
     public string CONNECTION_STRING { get; set; }

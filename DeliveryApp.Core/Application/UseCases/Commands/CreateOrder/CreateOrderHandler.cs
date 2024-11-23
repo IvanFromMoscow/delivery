@@ -1,15 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
-using DeliveryApp.Core.Domain.Model.CourierAggregate;
 using DeliveryApp.Core.Domain.OrderAggregate;
 using DeliveryApp.Core.Ports;
 using MediatR;
 using Primitives;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DeliveryApp.Core.Application.UseCases.Commands.CreateOrder
 {
@@ -38,7 +32,8 @@ namespace DeliveryApp.Core.Application.UseCases.Commands.CreateOrder
 
             // create order
             var location = await geoService.GetGeolocationAsync(command.Street, cancellationToken);
-            var newOrder = Order.Create(command.BasketId, location);
+            if (location.IsFailure) return GeneralErrors.ValueIsInvalid(location.Error.Message);
+            var newOrder = Order.Create(command.BasketId, location.Value);
             if (newOrder.IsFailure)
             {
                 return false;
