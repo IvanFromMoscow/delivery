@@ -3,6 +3,7 @@ using Api.Formatters;
 using Api.OpenApi;
 using CSharpFunctionalExtensions;
 using DeliveryApp.Api.Adapters.BackgroundJobs;
+using DeliveryApp.Api.Adapters.Kafka.BasketConfirmed;
 using DeliveryApp.Core.Application.UseCases.Commands.AssignOrderToCourier;
 using DeliveryApp.Core.Application.UseCases.Commands.CreateOrder;
 using DeliveryApp.Core.Application.UseCases.Commands.MoveCouriers;
@@ -57,11 +58,12 @@ public class Startup
         });
 
         // Configuration
-        
+
         services.Configure<Settings>(options => Configuration.Bind(options));
         var connectionString = Configuration["CONNECTION_STRING"];
         var geoServiceGrpcHost = Configuration["GEO_SERVICE_GRPC_HOST"];
         var messageBrokerHost = Configuration["MESSAGE_BROKER_HOST"];
+        var basketConfirmedTopic = Configuration["BASKET_CONFIRMED_TOPIC"];
 
         // Domain service
         services.AddTransient<IDispatchService, DispatchService>();
@@ -132,7 +134,15 @@ public class Startup
         });
         services.AddSwaggerGenNewtonsoftSupport();
         // gRPC
-       services.AddTransient<IGeoService, GeoService>();
+        services.AddTransient<IGeoService, GeoService>();
+
+        // Message Broker Consumer
+        services.Configure<HostOptions>(options =>
+        {
+            options.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
+            options.ShutdownTimeout = TimeSpan.FromSeconds(30);
+        });
+        services.AddHostedService<ConsumerService>();
 
         // CRON Jobs
         services.AddQuartz(configure =>
