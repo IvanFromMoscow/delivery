@@ -31,12 +31,12 @@ namespace DeliveryApp.Core.Ports
         /// Получить все новые заказы
         /// </summary>
         /// <returns></returns>
-        Task<IEnumerable<Order>> GetAllCreatedAsync();
+        Task<Order[]> GetAllCreatedAsync();
 
         /// <summary>
         /// Получить все назначенные заказы
         /// </summary>
         /// <returns></returns>
-        Task<IEnumerable<Order>> GetAllAssignedAsync();
+        Task<Order[]> GetAllAssignedAsync();
     }
 }

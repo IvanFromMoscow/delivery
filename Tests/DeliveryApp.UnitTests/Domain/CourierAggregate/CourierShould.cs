@@ -13,10 +13,7 @@ using Xunit;
 namespace DeliveryApp.UnitTests.Domain.CourierAggregate
 {
     public class CourierShould
-    {
-        private Courier courier;
-
-       
+    {       
         public static IEnumerable<object[]> CourierWithNotCorrectData()
         {
             yield return [string.Empty, Transport.Bicycle, Location.Create(1,1).Value];

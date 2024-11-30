@@ -1,4 +1,6 @@
-﻿using DeliveryApp.Core.SharedKernel;
+﻿using CSharpFunctionalExtensions;
+using DeliveryApp.Core.SharedKernel;
+using Primitives;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +11,6 @@ namespace DeliveryApp.Core.Ports
 {
     public interface IGeoService
     {
-        Task<Location> GetGeolocationAsync(string street, CancellationToken cancellationToken);
+        Task<Result<Location,Error>> GetGeolocationAsync(string street, CancellationToken cancellationToken);
     }
 }

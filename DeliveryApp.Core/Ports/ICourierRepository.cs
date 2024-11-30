@@ -30,6 +30,6 @@ namespace DeliveryApp.Core.Ports
         /// Получить всех свободных курьеров
         /// </summary>
         /// <returns></returns>
-        Task<IEnumerable<Courier>> GetAllFreeAsync();
+        Task<Courier[]> GetAllFreeAsync();
     }
 }
