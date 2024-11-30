@@ -79,11 +79,11 @@ public class Startup
 
 
         // UnitOfWork
-        services.AddTransient<IUnitOfWork, UnitOfWork>();
+        services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         // Ports & Adapters
-        services.AddTransient<ICourierRepository, CourierRepository>();
-        services.AddTransient<IOrderRepository, OrderRepository>();
+        services.AddScoped<ICourierRepository, CourierRepository>();
+        services.AddScoped<IOrderRepository, OrderRepository>();
 
         // Mediator
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
@@ -142,7 +142,12 @@ public class Startup
             options.BackgroundServiceExceptionBehavior = BackgroundServiceExceptionBehavior.Ignore;
             options.ShutdownTimeout = TimeSpan.FromSeconds(30);
         });
-        services.AddHostedService<ConsumerService>();
+
+        // нерабочий вариант
+        //var sp = services.BuildServiceProvider();
+        //var mediator = sp.GetService<IMediator>();
+        //services.AddHostedService(_ => new ConsumerService(...));
+        //services.AddHostedService<ConsumerService>();
 
         // CRON Jobs
         services.AddQuartz(configure =>

@@ -3,6 +3,7 @@ using DeliveryApp.Core.Domain.OrderAggregate;
 using DeliveryApp.Core.Domain.Services;
 using DeliveryApp.Core.Ports;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Primitives;
 using System;
 using System.Collections.Generic;
@@ -15,51 +16,56 @@ namespace DeliveryApp.Core.Application.UseCases.Commands.AssignOrderToCourier
 {
     public class AssignOrderToCourierHandler : IRequestHandler<AssignOrderToCourierCommand, Result<bool, Error>>
     {
-        private readonly IUnitOfWork unitOfWork;
-        private readonly IOrderRepository orderRepository;
-        private readonly ICourierRepository courierRepository;
         private readonly IDispatchService dispatchService;
+        private readonly IServiceScopeFactory serviceScopeFactory;
 
-        public AssignOrderToCourierHandler(IUnitOfWork unitOfWork, IOrderRepository orderRepository, ICourierRepository courierRepository, IDispatchService dispatchService)
+        public AssignOrderToCourierHandler(IDispatchService dispatchService, IServiceScopeFactory serviceScopeFactory)
         {
-            this.unitOfWork = unitOfWork;
-            this.orderRepository = orderRepository;
-            this.courierRepository = courierRepository;
             this.dispatchService = dispatchService;
+            this.serviceScopeFactory = serviceScopeFactory;
         }
         public async Task<Result<bool,Error>> Handle(AssignOrderToCourierCommand command, CancellationToken cancellationToken)
         {
-            var ordersCreated = await orderRepository.GetAllCreatedAsync();
-            if (!ordersCreated.Any())
+            using (var scope = serviceScopeFactory.CreateAsyncScope())
             {
-                return Errors.NoOrdersWithStatusCreated();
-            }
-            var freeCouriers = await courierRepository.GetAllFreeAsync();
-            if (!freeCouriers.Any())
-            {
-                return Errors.NoFreeCouriersForAssigning();
-            }
-            foreach (var order in ordersCreated)
-            {
-                var courier = dispatchService.Dispatch(order, freeCouriers.ToList());
-                if (courier.IsFailure)
+                // check
+                var scopedServices = scope.ServiceProvider;
+                var orderRepository = scopedServices.GetRequiredService<IOrderRepository>();
+                var courierRepository = scopedServices.GetRequiredService<ICourierRepository>();
+                var ordersCreated = await orderRepository.GetAllCreatedAsync();
+                if (!ordersCreated.Any())
                 {
-                    return courier.Error;
+                    return Errors.NoOrdersWithStatusCreated();
                 }
-                var assignedOrder = order.Assign(courier.Value);
-                if (assignedOrder.IsFailure)
+                var freeCouriers = await courierRepository.GetAllFreeAsync();
+                if (!freeCouriers.Any())
                 {
-                    return assignedOrder.Error;
+                    return Errors.NoFreeCouriersForAssigning();
                 }
-                var courierSetBusy = courier.Value.SetBusy();
-                if (courierSetBusy.IsFailure)
+                foreach (var order in ordersCreated)
                 {
-                    return courierSetBusy.Error;
+                    var courier = dispatchService.Dispatch(order, freeCouriers.ToList());
+                    if (courier.IsFailure)
+                    {
+                        return courier.Error;
+                    }
+                    var assignedOrder = order.Assign(courier.Value);
+                    if (assignedOrder.IsFailure)
+                    {
+                        return assignedOrder.Error;
+                    }
+                    var courierSetBusy = courier.Value.SetBusy();
+                    if (courierSetBusy.IsFailure)
+                    {
+                        return courierSetBusy.Error;
+                    }
+                    orderRepository.Update(order);
+                    courierRepository.Update(courier.Value);
                 }
-                orderRepository.Update(order);
-                courierRepository.Update(courier.Value);
+
+                return await scopedServices.GetRequiredService<IUnitOfWork>().SaveEntitiesAsync(cancellationToken);
             }
-            return await unitOfWork.SaveEntitiesAsync(cancellationToken);
+            
         }
 
 

@@ -57,6 +57,7 @@ namespace DeliveryApp.Api.Adapters.Kafka.BasketConfirmed
                     try
                     {
                         _consumer.StoreOffset(consumeResult);
+                        _consumer.Close();
                     }
                     catch (KafkaException e)
                     {
