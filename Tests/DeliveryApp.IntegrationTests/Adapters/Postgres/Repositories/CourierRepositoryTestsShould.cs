@@ -4,7 +4,9 @@ using DeliveryApp.Core.SharedKernel;
 using DeliveryApp.Infrastructure.Adapters.Postgres;
 using DeliveryApp.Infrastructure.Adapters.Postgres.Repositories;
 using FluentAssertions;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
+using NSubstitute;
 using Primitives;
 using Testcontainers.PostgreSql;
 using Xunit;
@@ -13,6 +15,9 @@ namespace DeliveryApp.IntegrationTests.Adapters.Postgres.Repositories
 {
     public class CourierRepositoryTestsShould : IAsyncLifetime
     {
+
+
+
         /// <summary>
         ///     Настройка Postgres из библиотеки TestContainers
         /// </summary>
@@ -26,13 +31,17 @@ namespace DeliveryApp.IntegrationTests.Adapters.Postgres.Repositories
             .Build();
         private readonly Courier courier;
         private ApplicationDbContext dbContext;
+        private readonly IMediator mediator;
 
         /// <summary>
         /// Ctr
         /// </summary>
         public CourierRepositoryTestsShould()
         {
+            mediator = Substitute.For<IMediator>();
+
             courier = Courier.Create("Jhon", Transport.Pedestrian, Location.Create(1, 1).Value).Value;
+            Substitute.For<IMediator>();
         }
         public async Task DisposeAsync()
         {
@@ -59,7 +68,7 @@ namespace DeliveryApp.IntegrationTests.Adapters.Postgres.Repositories
             //Act
             var courierRepository = new CourierRepository(dbContext);
             await courierRepository.AddAsync(courier);
-            var unitOfWork = new UnitOfWork(dbContext);
+            var unitOfWork = new UnitOfWork(dbContext, mediator);
             await unitOfWork.SaveEntitiesAsync();
 
             //Assert
@@ -74,7 +83,7 @@ namespace DeliveryApp.IntegrationTests.Adapters.Postgres.Repositories
             //Arrange
             var courierRepository = new CourierRepository(dbContext);
             await courierRepository.AddAsync(courier);
-            var unitOfWork = new UnitOfWork(dbContext);
+            var unitOfWork = new UnitOfWork(dbContext, mediator);
             await unitOfWork.SaveEntitiesAsync();
 
             //Act
@@ -95,7 +104,7 @@ namespace DeliveryApp.IntegrationTests.Adapters.Postgres.Repositories
             //Arrange
             var courierRepository = new CourierRepository(dbContext);
             await courierRepository.AddAsync(courier);
-            var unitOfWork = new UnitOfWork(dbContext);
+            var unitOfWork = new UnitOfWork(dbContext, mediator);
             await unitOfWork.SaveEntitiesAsync();
 
             //Act
@@ -117,7 +126,7 @@ namespace DeliveryApp.IntegrationTests.Adapters.Postgres.Repositories
             await courierRepository.AddAsync(courier);
             await courierRepository.AddAsync(courierTwo);
 
-            var unitOfWork = new UnitOfWork(dbContext);
+            var unitOfWork = new UnitOfWork(dbContext, mediator);
             await unitOfWork.SaveEntitiesAsync();
 
             //Act

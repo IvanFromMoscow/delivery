@@ -8,6 +8,18 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <None Remove="Adapters\Kafka\OrderStatusChanged\Contract.proto" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Confluent.Kafka" Version="2.6.1" />
+      <PackageReference Include="Google.Protobuf" Version="3.29.0-rc2" />
+      <PackageReference Include="Grpc.AspNetCore" Version="2.67.0-pre1" />
+      <PackageReference Include="Grpc.Net.Client" Version="2.67.0-pre1" />
+      <PackageReference Include="Grpc.Tools" Version="2.67.0">
+        <PrivateAssets>all</PrivateAssets>
+        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      </PackageReference>
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0-rc.1.24451.1" />
       <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0-rc.1.24451.1">
         <PrivateAssets>all</PrivateAssets>
@@ -25,4 +37,13 @@
         <ProjectReference Include="..\Utils\Primitives\Primitives.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Protobuf Include="Adapters\Grpc\GeoService\Contract.proto" GrpcServices="Client">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Protobuf>
+      <Protobuf Include="Adapters\Kafka\OrderStatusChanged\Contract.proto" GrpcServices="Client">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Protobuf>
+    </ItemGroup>
+  
 </Project>

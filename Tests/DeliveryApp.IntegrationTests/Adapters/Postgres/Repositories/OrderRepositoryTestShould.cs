@@ -4,7 +4,9 @@ using DeliveryApp.Core.SharedKernel;
 using DeliveryApp.Infrastructure.Adapters.Postgres;
 using DeliveryApp.Infrastructure.Adapters.Postgres.Repositories;
 using FluentAssertions;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
+using NSubstitute;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Metrics;
@@ -31,9 +33,10 @@ namespace DeliveryApp.IntegrationTests.Adapters.Postgres.Repositories
             .Build();
         private readonly Order order;
         private ApplicationDbContext dbContext;
-
+        private IMediator mediator;
         public OrderRepositoryTestShould()
         {
+            mediator = Substitute.For<IMediator>();
             order = Order.Create(Guid.NewGuid(), Location.Create(1,1).Value).Value;
         }
         public async Task DisposeAsync()
@@ -61,7 +64,7 @@ namespace DeliveryApp.IntegrationTests.Adapters.Postgres.Repositories
             //Act
             var orderRepository = new OrderRepository(dbContext);
             await orderRepository.AddAsync(order);
-            var unitOfWork = new UnitOfWork(dbContext);
+            var unitOfWork = new UnitOfWork(dbContext, mediator);
             await unitOfWork.SaveEntitiesAsync();
 
             //Assert
@@ -75,7 +78,7 @@ namespace DeliveryApp.IntegrationTests.Adapters.Postgres.Repositories
             //Arrange
             var orderRepository = new OrderRepository(dbContext);
             await orderRepository.AddAsync(order);
-            var unitOfWork = new UnitOfWork(dbContext);
+            var unitOfWork = new UnitOfWork(dbContext, mediator);
             await unitOfWork.SaveEntitiesAsync();
 
             //Act
@@ -96,7 +99,7 @@ namespace DeliveryApp.IntegrationTests.Adapters.Postgres.Repositories
             //Arrange
             var orderRepository = new OrderRepository(dbContext);
             await orderRepository.AddAsync(order);
-            var unitOfWork = new UnitOfWork(dbContext);
+            var unitOfWork = new UnitOfWork(dbContext, mediator);
             await unitOfWork.SaveEntitiesAsync();
 
             //Act
@@ -116,7 +119,7 @@ namespace DeliveryApp.IntegrationTests.Adapters.Postgres.Repositories
             await orderRepository.AddAsync(order);
             await orderRepository.AddAsync(orderTwo);
 
-            var unitOfWork = new UnitOfWork(dbContext);
+            var unitOfWork = new UnitOfWork(dbContext, mediator);
             await unitOfWork.SaveEntitiesAsync();
 
             //Act
@@ -142,7 +145,7 @@ namespace DeliveryApp.IntegrationTests.Adapters.Postgres.Repositories
             await orderRepository.AddAsync(order);
             await orderRepository.AddAsync(orderTwo);
 
-            var unitOfWork = new UnitOfWork(dbContext);
+            var unitOfWork = new UnitOfWork(dbContext, mediator);
             await unitOfWork.SaveEntitiesAsync();
 
             //Act
