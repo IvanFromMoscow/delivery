@@ -11,7 +11,7 @@
         <NoWarn>$(NoWarn);1591</NoWarn>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Confluent.Kafka" Version="2.6.0" />
+        <PackageReference Include="Confluent.Kafka" Version="2.6.1" />
         <PackageReference Include="Dapper" Version="2.1.35" />
         <PackageReference Include="Google.Protobuf" Version="3.29.0-rc2" />
         <PackageReference Include="Grpc.Tools" Version="2.67.0">

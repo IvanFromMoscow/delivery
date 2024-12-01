@@ -2,6 +2,7 @@
 using DeliveryApp.Core.Domain.CourierAggregate;
 using DeliveryApp.Core.Domain.Model.CourierAggregate;
 using DeliveryApp.Core.Domain.Model.OrderAggregate;
+using DeliveryApp.Core.Domain.OrderAggregate.DomainEvents;
 using DeliveryApp.Core.SharedKernel;
 using Primitives;
 using System;
@@ -67,6 +68,7 @@ namespace DeliveryApp.Core.Domain.OrderAggregate
             if (Status != OrderStatus.Assigned) return Errors.CompleteOrderIsWrong();
             
             Status = OrderStatus.Completed;
+            RaiseDomainEvent(new OrderStatusChangedDomainEvent(Id, Status));
             return UnitResult.Success<Error>();
         }
 

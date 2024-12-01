@@ -10,7 +10,8 @@
         "CONNECTION_STRING": "Server=localhost;Port=5232;User Id=postgres;Password=p@ssw0rd;Database=delivery;",
         "GEO_SERVICE_GRPC_HOST": "http://localhost:5004",
         "MESSAGE_BROKER_HOST": "localhost",
-        "BASKET_CONFIRMED_TOPIC": "basket.confirmed"
+        "BASKET_CONFIRMED_TOPIC": "basket.confirmed",
+        "ORDER_STATUS_CHANGED": "order.status.changed"
       }
     }
   }

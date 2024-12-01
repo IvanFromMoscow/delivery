@@ -4,14 +4,17 @@ using Api.OpenApi;
 using CSharpFunctionalExtensions;
 using DeliveryApp.Api.Adapters.BackgroundJobs;
 using DeliveryApp.Api.Adapters.Kafka.BasketConfirmed;
+using DeliveryApp.Core.Application.DomainEventHandlers;
 using DeliveryApp.Core.Application.UseCases.Commands.AssignOrderToCourier;
 using DeliveryApp.Core.Application.UseCases.Commands.CreateOrder;
 using DeliveryApp.Core.Application.UseCases.Commands.MoveCouriers;
 using DeliveryApp.Core.Application.UseCases.Queries.GetAllBusyCouriers;
 using DeliveryApp.Core.Application.UseCases.Queries.GetAllCreatedAndAssignedOrders;
+using DeliveryApp.Core.Domain.OrderAggregate.DomainEvents;
 using DeliveryApp.Core.Domain.Services;
 using DeliveryApp.Core.Ports;
 using DeliveryApp.Infrastructure.Adapters.Grpc.GeoService;
+using DeliveryApp.Infrastructure.Adapters.Kafka.OrderStatusChanged;
 using DeliveryApp.Infrastructure.Adapters.Postgres;
 using DeliveryApp.Infrastructure.Adapters.Postgres.Repositories;
 using MediatR;
@@ -144,11 +147,17 @@ public class Startup
         });
 
         // нерабочий вариант
-        //var sp = services.BuildServiceProvider();
-        //var mediator = sp.GetService<IMediator>();
-        //services.AddHostedService(_ => new ConsumerService(...));
-        //services.AddHostedService<ConsumerService>();
+        var sp = services.BuildServiceProvider();
+        var mediator = sp.GetService<IMediator>();
+        services.AddHostedService<ConsumerService>();
+        
 
+        // Domain Event Handlers
+        services.AddTransient<INotificationHandler<OrderStatusChangedDomainEvent>, OrderStatusChangedDomainEventHandler>();
+
+        //Message broker Producer
+        services.AddTransient<INotificationProducer, Producer>();
+        
         // CRON Jobs
         services.AddQuartz(configure =>
         {
