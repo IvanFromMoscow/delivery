@@ -17,7 +17,7 @@ namespace DeliveryApp.Infrastructure.Adapters.Postgres.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.0-rc.1.24451.1")
+                .HasAnnotation("ProductVersion", "9.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -167,6 +167,35 @@ namespace DeliveryApp.Infrastructure.Adapters.Postgres.Migrations
                     b.HasIndex("status_id");
 
                     b.ToTable("orders", (string)null);
+                });
+
+            modelBuilder.Entity("DeliveryApp.Infrastructure.Adapters.Postgres.Entities.OutboxMessage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("CreatedDateUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_date_utc");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("message");
+
+                    b.Property<DateTime?>("PublishedDateUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("published_date_utc");
+
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("type");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("outbox", (string)null);
                 });
 
             modelBuilder.Entity("DeliveryApp.Core.Domain.CourierAggregate.Courier", b =>
